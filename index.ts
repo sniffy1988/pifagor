@@ -140,6 +140,15 @@ bot.command('game',  (ctx) => {
     startGame(ctx);
 });
 
+bot.command('english',  (ctx) => {
+    ctx.reply('https://us04web.zoom.us/j/74850557245?pwd=zDYuHyJIYUOs3MDGnf4O8f19tKVbmH.1');
+});
+
+bot.command('class',  (ctx) => {
+    ctx.reply('https://us05web.zoom.us/j/3237947064?pwd=MkQ2WHNHNHNRcW9ZODRocVdQMml2dz09');
+
+});
+
 bot.on("callback_query:data", async (ctx) => {
     const data = ctx.callbackQuery.data;
     if(data === 'start_new') {
@@ -200,6 +209,14 @@ bot.api.setMyCommands([
     {
         command: 'leaderboard',
         description: 'Узнати скільки у мене очок'
+    },
+    {
+        command: 'english',
+        description: 'Англійська мова'
+    },
+    {
+        command: 'class',
+        description: 'Світлана Семенівна'
     }
 ]);
 
