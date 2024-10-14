@@ -6,8 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.ts",
-    "start": "pm2 start run.sh --name pifagor",
-    "stop": "pm2 stop pifagor"
+    "start": "ts-node -T index.ts"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +17,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
     "grammy": "^1.23.0"
   }
 }

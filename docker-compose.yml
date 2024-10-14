@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  pifagortelegram:
+    platform: linux/amd64
+    image: pifagortelegram
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
