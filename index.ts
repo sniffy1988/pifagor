@@ -1,14 +1,13 @@
-import {Bot, Context, InlineKeyboard} from "grammy";
-import * as url from "node:url";
+import { Bot, Context, InlineKeyboard } from "grammy";
 const fs = require('fs');
 const fileUrl = './leaderboard.json';
 
 const leadUsers = () => {
-    if(fs.existsSync(fileUrl)) {
+    if (fs.existsSync(fileUrl)) {
         const fileContent = fs.readFileSync(fileUrl);
-        if(fileContent.length) {
+        if (fileContent.length) {
             const usersFromFile = JSON.parse(fileContent);
-            if(usersFromFile.length) {
+            if (usersFromFile.length) {
                 return usersFromFile;
             }
         }
@@ -18,7 +17,7 @@ const leadUsers = () => {
 }
 
 const saveUsers = () => {
-    if(fs.existsSync(fileUrl)) {
+    if (fs.existsSync(fileUrl)) {
         const json = JSON.stringify(users);
         fs.writeFileSync(fileUrl, json);
     }
@@ -74,8 +73,16 @@ const createUser = (id: number, firstName: string) => {
 
 const addPoints = (userId: number) => {
     const user = getUserById(userId);
-    if(user) {
+    if (user) {
         user.points += 10;
+        saveUsers();
+    }
+}
+
+const setPoints = (points: number) => {
+    const user = getUserById(6651157406);
+    if (user) {
+        user.points = points;
         saveUsers();
     }
 }
@@ -129,29 +136,42 @@ const startGame = async (ctx: Context) => {
     currentQuestion = newQuestion;
     await bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/25xf09f98b1.webp');
 
-    await ctx.reply(newQuestion.text, {parse_mode: "HTML", reply_markup: newQuestion.keyboard});
+    await ctx.reply(newQuestion.text, { parse_mode: "HTML", reply_markup: newQuestion.keyboard });
 }
 
 bot.command('start', (ctx) => {
     ctx.reply('Hello');
 });
 
-bot.command('game',  (ctx) => {
+bot.command('game', (ctx) => {
     startGame(ctx);
 });
 
-bot.command('english',  (ctx) => {
+bot.command('english', (ctx) => {
     ctx.reply('https://us04web.zoom.us/j/74850557245?pwd=zDYuHyJIYUOs3MDGnf4O8f19tKVbmH.1');
 });
 
-bot.command('class',  (ctx) => {
+bot.command('class', (ctx) => {
     ctx.reply('https://us05web.zoom.us/j/3237947064?pwd=MkQ2WHNHNHNRcW9ZODRocVdQMml2dz09');
 
 });
 
+bot.command('setPoints', (ctx: Context) => {
+    if (ctx.from?.id === 652795408) {
+        if (ctx.match) {
+            const newPoints = +ctx.match;
+            if (newPoints) {
+                setPoints(newPoints);
+            }
+        } else {
+            ctx.reply('Необхідно передати кількість очок');
+        }
+    }
+})
+
 bot.on("callback_query:data", async (ctx) => {
     const data = ctx.callbackQuery.data;
-    if(data === 'start_new') {
+    if (data === 'start_new') {
         startGame(ctx);
         return await ctx.answerCallbackQuery();
     } else {
@@ -168,7 +188,7 @@ bot.on("callback_query:data", async (ctx) => {
 
                 await ctx.reply('Неправильно!');
             } else {
-                if(user) {
+                if (user) {
                     await bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/2xf09f918d.webp');
 
                     await ctx.reply('Правильно! + 10 очок Гріфіндору!');
@@ -179,7 +199,7 @@ bot.on("callback_query:data", async (ctx) => {
             currentQuestion = null;
             const keyboard = new InlineKeyboard();
             keyboard.text('Нова гра', 'start_new')
-            await ctx.reply('Ще раз?', {reply_markup: keyboard});
+            await ctx.reply('Ще раз?', { reply_markup: keyboard });
             return await ctx.answerCallbackQuery();
         }
     }
@@ -191,6 +211,11 @@ bot.command('leaderboard', async (ctx) => {
     if (user) {
         await bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/3xf09f9982.webp');
         await ctx.reply(`У тебе ${user.points} очок`);
+        const hrn = parseFloat((user.points / 100).toFixed(2));
+        const formattedString = new Intl.NumberFormat('ua-UA', { style: 'currency', currency: 'UAH' }).format(
+            hrn
+        )
+        await ctx.reply(`У тебе ${formattedString} галеонів`);
     } else {
         await bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/3xf09f9982.webp');
         await ctx.reply('У тебе ще немає очок');
