@@ -1,10 +1,25 @@
-FROM node:lts-alpine
-ARG TARGETOS TARGETARCH
+# Use an official Node.js image with Alpine
+FROM arm32v7/node:18-alpine
+
+# Set build arguments and environment variables
+ARG TARGETOS=TARGETARCH
 ENV NODE_ENV=production
+ENV TZ="Europe/Kyiv"
+
+# Set the working directory
 WORKDIR /usr/src/app
-COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
-RUN npm install && mv node_modules ../
+
+# Copy only package-related files to leverage caching
+COPY package.json .
+COPY package-lock.json .
+
+# Install dependencies (only production dependencies if NODE_ENV is production)
+RUN npm ci
+
+# Move node_modules to a higher level to allow sharing across layers
+
+# Copy application code
 COPY . .
-RUN chown -R node /usr/src/app
-USER node
-CMD ["npx", "ts-node", "index.ts"]
+
+# Define the command to run the application
+CMD ["node", "./build/index.js"]

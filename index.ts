@@ -1,4 +1,6 @@
 import { Bot, Context, InlineKeyboard } from "grammy";
+import 'dotenv/config';
+
 const fs = require('fs');
 const fileUrl = './leaderboard.json';
 
@@ -25,9 +27,9 @@ const saveUsers = () => {
 
 const users: User[] = leadUsers();
 
-const token = '7126783978:AAHKGXERSXCa9rYRRlnD42Vu76prZXp55Hw';
+const token = process.env.BOT_TOKEN;
 
-const bot = new Bot(token);
+const bot = new Bot(token || '');
 
 type User = {
     id: number

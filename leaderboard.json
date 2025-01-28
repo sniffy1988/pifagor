@@ -1,1 +1,4 @@
-[{"id":6651157406,"name":"Angelina","points":21000},{"id":652795408,"name":"Anton","points":30}]
+[
+  { "id": 6651157406, "name": "Angelina", "points": 34000 },
+  { "id": 652795408, "name": "Anton", "points": 30 }
+]

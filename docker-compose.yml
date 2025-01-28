@@ -1,11 +1,13 @@
-version: '3.4'
+version: '3.8'
 
 services:
-  pifagortelegram:
-    platform: linux/amd64
-    image: pifagortelegram
+  app:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
+      platform: linux/arm/v7
     environment:
       NODE_ENV: production
+      TZ: Europe/Kyiv
+    working_dir: /usr/src/app
+    command: ["node", "./build/index.js"]
