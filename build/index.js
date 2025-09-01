@@ -1,9 +1,18 @@
-import { Bot, Context, InlineKeyboard } from "grammy";
-import 'dotenv/config';
-
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const grammy_1 = require("grammy");
+require("dotenv/config");
 const fs = require('fs');
 const fileUrl = './leaderboard.json';
-
 const leadUsers = () => {
     if (fs.existsSync(fileUrl)) {
         const fileContent = fs.readFileSync(fileUrl);
@@ -13,44 +22,25 @@ const leadUsers = () => {
                 return usersFromFile;
             }
         }
-
     }
-    return []
-}
-
+    return [];
+};
 const saveUsers = () => {
     if (fs.existsSync(fileUrl)) {
         const json = JSON.stringify(users);
         fs.writeFileSync(fileUrl, json);
     }
-}
-
-const users: User[] = leadUsers();
-
+};
+const users = leadUsers();
 const token = process.env.BOT_TOKEN;
-
-const bot = new Bot(token || '');
-
-type User = {
-    id: number
-    name: string
-    points: number
-}
-
-type Question = {
-    firstNumber: number
-    secondNumber: number
-}
-
-let currentQuestion: any = null;
-
-function getRandomInt(min: number, max: number) {
+const bot = new grammy_1.Bot(token || '');
+let currentQuestion = null;
+function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-function shuffleArray(array: string[]) {
+function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         // Pick a random index from 0 to i
         const j = Math.floor(Math.random() * (i + 1));
@@ -59,171 +49,148 @@ function shuffleArray(array: string[]) {
     }
     return array;
 }
-
-
-const isUserPlayed = (id: number) => {
+const isUserPlayed = (id) => {
     return users.findIndex(user => user.id === id) !== -1;
-}
-
-const createUser = (id: number, firstName: string) => {
+};
+const createUser = (id, firstName) => {
     users.push({
         id: id,
         name: firstName,
         points: 0
-    })
-}
-
-const addPoints = (userId: number) => {
+    });
+};
+const addPoints = (userId) => {
     const user = getUserById(userId);
     if (user) {
         user.points += 10;
         saveUsers();
     }
-}
-
-const setPoints = (points: number) => {
+};
+const setPoints = (points) => {
     const user = getUserById(6651157406);
     if (user) {
         user.points = points;
         saveUsers();
     }
-}
-
-const getUserById = (id: number) => {
+};
+const getUserById = (id) => {
     return users.find(user => user.id === id) || null;
-}
-
-const callbackDataGenerator = (firstNumber: string, secondNumber: string, answer: string) => {
+};
+const callbackDataGenerator = (firstNumber, secondNumber, answer) => {
     return `question_${firstNumber}_${secondNumber}_${answer}`;
-}
-
+};
 const questionGenerator = () => {
-    const question: Question = {
+    const question = {
         firstNumber: getRandomInt(1, 10),
         secondNumber: getRandomInt(1, 10),
-    }
-    const keyboard = new InlineKeyboard();
-
+    };
+    const keyboard = new grammy_1.InlineKeyboard();
     const randomAnswer1 = getRandomInt(1, 100).toString();
     const randomAnswer2 = getRandomInt(1, 100).toString();
-
     const answers = [
         randomAnswer1,
         (question.firstNumber * question.secondNumber).toString(),
         randomAnswer2
     ];
-
     const randomAnswers = shuffleArray(answers);
-
     for (const randomAnswer of randomAnswers) {
         keyboard.text(randomAnswer, callbackDataGenerator(question.firstNumber.toString(), question.secondNumber.toString(), randomAnswer));
     }
-
     return {
         question: question,
         text: `Скільки буде: \n ${question.firstNumber} * ${question.secondNumber} :`,
         answer: question.firstNumber * question.secondNumber,
         keyboard
-    }
-}
-
-const startGame = async (ctx: Context) => {
-    const userId = ctx.from?.id || 0;
-    const firstName = ctx.from?.first_name || '';
+    };
+};
+const startGame = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    const userId = ((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id) || 0;
+    const firstName = ((_b = ctx.from) === null || _b === void 0 ? void 0 : _b.first_name) || '';
     if (!isUserPlayed(userId)) {
         createUser(userId, firstName);
     }
-
     const newQuestion = questionGenerator();
     currentQuestion = newQuestion;
-    await bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/25xf09f98b1.webp');
-
-    await ctx.reply(newQuestion.text, { parse_mode: "HTML", reply_markup: newQuestion.keyboard });
-}
-
+    yield bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/25xf09f98b1.webp');
+    yield ctx.reply(newQuestion.text, { parse_mode: "HTML", reply_markup: newQuestion.keyboard });
+});
 bot.command('start', (ctx) => {
     ctx.reply('Hello');
 });
-
 bot.command('game', (ctx) => {
     startGame(ctx);
 });
-
 bot.command('english', (ctx) => {
-    ctx.reply('https://us04web.zoom.us/j/76558530246?pwd=eD1xfYx0vIltNejcMT8VsIKKSpHHzN.1');
+    ctx.reply('https://us04web.zoom.us/j/74850557245?pwd=zDYuHyJIYUOs3MDGnf4O8f19tKVbmH.1');
 });
-
 bot.command('class', (ctx) => {
     ctx.reply('https://us05web.zoom.us/j/3237947064?pwd=MkQ2WHNHNHNRcW9ZODRocVdQMml2dz09');
-
 });
-
-bot.command('setPoints', (ctx: Context) => {
-    if (ctx.from?.id === 652795408) {
+bot.command('setPoints', (ctx) => {
+    var _a;
+    if (((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id) === 652795408) {
         if (ctx.match) {
             const newPoints = +ctx.match;
             if (newPoints) {
                 setPoints(newPoints);
             }
-        } else {
+        }
+        else {
             ctx.reply('Необхідно передати кількість очок');
         }
     }
-})
-
-bot.on("callback_query:data", async (ctx) => {
+});
+bot.on("callback_query:data", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _c;
     const data = ctx.callbackQuery.data;
     if (data === 'start_new') {
         startGame(ctx);
-        return await ctx.answerCallbackQuery();
-    } else {
+        return yield ctx.answerCallbackQuery();
+    }
+    else {
         console.log('call', data);
         const answer = data.split('_');
         const firstNumber = parseInt(answer[1]);
         const secondNumber = parseInt(answer[2]);
-        const userId = ctx.from?.id || 0;
+        const userId = ((_c = ctx.from) === null || _c === void 0 ? void 0 : _c.id) || 0;
         const user = getUserById(userId);
-
         if (currentQuestion !== null && firstNumber === currentQuestion.question.firstNumber && secondNumber === currentQuestion.question.secondNumber) {
             if (parseInt(answer[1]) * parseInt(answer[2]) !== parseInt(answer[3])) {
-                await bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/27xf09fa4a3.webp');
-
-                await ctx.reply('Неправильно!');
-            } else {
+                yield bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/27xf09fa4a3.webp');
+                yield ctx.reply('Неправильно!');
+            }
+            else {
                 if (user) {
-                    await bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/2xf09f918d.webp');
-
-                    await ctx.reply('Правильно! + 10 очок Гріфіндору!');
+                    yield bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/2xf09f918d.webp');
+                    yield ctx.reply('Правильно! + 10 очок Гріфіндору!');
                     addPoints(userId);
-
                 }
             }
             currentQuestion = null;
-            const keyboard = new InlineKeyboard();
-            keyboard.text('Нова гра', 'start_new')
-            await ctx.reply('Ще раз?', { reply_markup: keyboard });
-            return await ctx.answerCallbackQuery();
+            const keyboard = new grammy_1.InlineKeyboard();
+            keyboard.text('Нова гра', 'start_new');
+            yield ctx.reply('Ще раз?', { reply_markup: keyboard });
+            return yield ctx.answerCallbackQuery();
         }
     }
-});
-
-bot.command('leaderboard', async (ctx) => {
-    const userId = ctx.from?.id || 0;
+}));
+bot.command('leaderboard', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d;
+    const userId = ((_d = ctx.from) === null || _d === void 0 ? void 0 : _d.id) || 0;
     const user = getUserById(userId);
     if (user) {
-        await bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/3xf09f9982.webp');
-        await ctx.reply(`У тебе ${user.points} очок`);
+        yield bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/3xf09f9982.webp');
+        yield ctx.reply(`У тебе ${user.points} очок`);
         const hrn = parseFloat((user.points / 100).toFixed(2));
-        const formattedString = new Intl.NumberFormat('ua-UA', { style: 'currency', currency: 'UAH' }).format(
-            hrn
-        )
-        await ctx.reply(`У тебе ${formattedString} галеонів`);
-    } else {
-        await bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/3xf09f9982.webp');
-        await ctx.reply('У тебе ще немає очок');
+        const formattedString = new Intl.NumberFormat('ua-UA', { style: 'currency', currency: 'UAH' }).format(hrn);
+        yield ctx.reply(`У тебе ${formattedString} галеонів`);
     }
-})
-
+    else {
+        yield bot.api.sendSticker(userId, 'https://sl.combot.org/hhpppotter/webp/3xf09f9982.webp');
+        yield ctx.reply('У тебе ще немає очок');
+    }
+}));
 bot.api.setMyCommands([
     {
         command: 'start',
@@ -246,7 +213,5 @@ bot.api.setMyCommands([
         description: 'Світлана Семенівна'
     }
 ]);
-
 bot.start();
-
-export default bot;
+exports.default = bot;
